@@ -15,8 +15,6 @@ export async function POST(req) {
         }
 
         for (const image of images) {
-
-          console.log("IMAGE",image);
          
           const description = `${image.description || ''}`;
 
@@ -40,7 +38,7 @@ export async function POST(req) {
             modelDescription: image.modelDescription,
             upscaled: image.upscale
           };
-          
+
           controller.enqueue(encoder.encode(JSON.stringify(result) + '\n'));
         }
 

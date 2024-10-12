@@ -1,11 +1,14 @@
 import { Storage } from '@google-cloud/storage';
 import { NextResponse } from 'next/server';
+import { formatPrivateKey } from '../../utils/fixEnvVar';
 
-const keyfile = JSON.parse(process.env.GOOGLE_CLOUD_KEYFILE);
 
 const storage = new Storage({
   projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-  credentials: keyfile,
+  credentials: {
+    client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
+    private_key: formatPrivateKey(process.env.GOOGLE_CLOUD_PRIVATE_KEY),
+  },
 });
 
 const bucket = storage.bucket(process.env.GOOGLE_CLOUD_BUCKET_NAME);

@@ -227,7 +227,7 @@ export default function ImageGallery({ images, generatedImages, isUploadedGaller
                       </div>
                     </>
                   ) : (
-                    <p>{image.description}</p>
+                    <p className={titillium.className}>{image.description}</p>
                   )}
                 </div>
               </div>

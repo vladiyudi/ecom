@@ -20,12 +20,10 @@ export async function POST(req) {
 
           const modelPrompt = `${image.modelDescription || 'full body shot, fashion model wearing jeans and t-shirt in a neutral pose, studio lighting'}`
           
-          // Generate a new model for each garment
           const modelImageUrl = await generateFashionModel(modelPrompt);
           
           let generatedImageUrl = await generateClothesOnModel(modelImageUrl, image.url, description);
 
-          // If upscale is checked, upscale the generated image
           if (image.upscale) {
             generatedImageUrl = await upscaleImage(generatedImageUrl);
           }

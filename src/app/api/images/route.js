@@ -1,35 +1,39 @@
-import { Storage } from '@google-cloud/storage';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
-import { formatPrivateKey } from '../../utils/fixEnvVar';
-
-
-const storage = new Storage({
-  projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-  credentials: {
-    client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
-    private_key: formatPrivateKey(process.env.GOOGLE_CLOUD_PRIVATE_KEY),
-  },
-});
-
-const bucket = storage.bucket(process.env.GOOGLE_CLOUD_BUCKET_NAME);
+import User from '@/app/models/User';
+import connectDB from '@/app/lib/mongodb';
 
 export async function GET() {
   try {
-    const [files] = await bucket.getFiles();
-    const images = await Promise.all(files.map(async (file) => {
-      const [metadata] = await file.getMetadata();
-      return {
-        name: file.name,
-        url: `https://storage.googleapis.com/${bucket.name}/${file.name}`,
-        uploadDate: metadata.timeCreated,
-        size: metadata.size,
-        contentType: metadata.contentType,
-        description: metadata.metadata ? metadata.metadata.description : '',
-        modelDescription: metadata.metadata ? metadata.metadata.modelDescription : '',
-        upscale: metadata.metadata ? metadata.metadata.upscale === 'true' : false
-      };
-    }));
-    console.log('Successfully retrieved files:', images);
+    const session = await getServerSession(authOptions);
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectDB();
+    
+    const user = await User.findOne({ email: session.user.email });
+    
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const images = user.clothes
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .map(item => ({
+        name: item.name,
+        url: item.imageUrl,
+        uploadDate: item.createdAt,
+        description: item.description || '',
+        modelDescription: item.modelDescription || '',
+        upscale: item.upscale || false,
+        contentType: 'image/jpeg', // Default content type for uploaded images
+        size: 0 // Size information not stored in user model
+      }));
+
+    console.log('Successfully retrieved user images:', images);
     return NextResponse.json(images);
   } catch (error) {
     console.error('Error fetching images:', error);

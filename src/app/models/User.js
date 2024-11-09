@@ -1,5 +1,24 @@
 import mongoose from 'mongoose';
 
+const ClothingItemSchema = new mongoose.Schema({
+  imageUrl: {
+    type: String,
+    required: true
+  },
+  name: {
+    type: String,
+    required: true
+  },
+  description: String,
+  modelDescription: String,
+  upscale: Boolean,
+  aiDescription: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -18,10 +37,17 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     sparse: true
   },
+  clothes: {
+    type: [ClothingItemSchema],
+    default: []  // Initialize as empty array by default
+  },
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
 
-export default mongoose.models.User || mongoose.model('User', UserSchema);
+// Delete and recreate the model to ensure schema changes are applied
+mongoose.models = {};
+
+export default mongoose.model('User', UserSchema);

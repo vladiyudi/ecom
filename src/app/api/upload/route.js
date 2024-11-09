@@ -76,10 +76,9 @@ export async function POST(request) {
 
           const metadata = {
             description: aiDescription.outfit || '',
-            modelDescription: modelDescriptions[index] || '',
+            modelDescription: modelDescriptions[index] || `full body shot, fashion ${aiDescription.gender} model wearing ${aiDescription.outfit} in a neutral pose, studio lighting`,
             upscale: upscaleFlags[index] === 'true' ? 'true' : 'false',
             aiDescription: aiDescription.outfit,
-            modelDescription: `full body shot, fashion ${aiDescription.gender} model wearing ${aiDescription.outfit} in a neutral pose, full body shot, studio lighting`,
           };
 
           // Update the blob's metadata
@@ -89,7 +88,7 @@ export async function POST(request) {
             url: publicUrl,
             name: sanitizedFilename,
             description: aiDescription.outfit || '',
-            modelDescription: modelDescriptions[index] || '',
+            modelDescription: modelDescriptions[index] || `full body shot, fashion ${aiDescription.gender} model wearing ${aiDescription.outfit} in a neutral pose, studio lighting`,
             upscale: upscaleFlags[index] === 'true',
             aiDescription: aiDescription.outfit,
           });

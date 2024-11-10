@@ -117,8 +117,6 @@ export async function POST(request) {
     // Save the updated user
     await user.save();
 
-    console.log('Updated user:', user); // Add logging to verify the update
-
     return NextResponse.json({ 
       message: 'Images uploaded successfully', 
       images: uploadedImages,

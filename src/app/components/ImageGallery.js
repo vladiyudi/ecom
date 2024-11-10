@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, use } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faDownload, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import {galleryStyle, flexContainerStyle, imageContainerStyle, frameStyle, imageStyle, inputContainerStyle, inputStyle, checkboxContainerStyle, modalStyle, modalImageStyle, iconButtonStyle} from '../utils/styles';
 
 export default function ImageGallery({ images, generatedImages, isUploadedGallery, onUpdateDescription, onDeleteImage, titillium}) {
@@ -9,6 +9,8 @@ export default function ImageGallery({ images, generatedImages, isUploadedGaller
   const [modelDescriptions, setModelDescriptions] = useState({});
   const [upscaleChecked, setUpscaleChecked] = useState({});
   const [modalImage, setModalImage] = useState(null);
+  const [bottomImages, setBottomImages] = useState({});
+  const [bottomDescriptions, setBottomDescriptions] = useState({});
 
   useEffect(() => {
     if (isUploadedGallery && images) {
@@ -71,9 +73,33 @@ export default function ImageGallery({ images, generatedImages, isUploadedGaller
     document.body.removeChild(a);
   };
 
-  
+  const handleBottomImageUpload = (event, index) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBottomImages(prev => ({ ...prev, [index]: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBottomDescriptionChange = (index, value) => {
+    setBottomDescriptions(prev => ({ ...prev, [index]: value }));
+  };
 
   const displayImages = isUploadedGallery ? images : generatedImages;
+
+  const hiddenInputStyle = {
+    display: 'none'
+  };
+
+  const addBottomIconStyle = {
+    border:"solid 1px #e5e7eb",
+
+    // ...iconButtonStyle,
+    // marginTop: '10px'
+  };
 
   return (
     <>
@@ -117,6 +143,22 @@ export default function ImageGallery({ images, generatedImages, isUploadedGaller
                         onBlur={() => handleDescriptionBlur(index)}
                         style={inputStyle}
                       />
+                          {bottomImages[index] && (
+                        <>
+                          <img 
+                            src={bottomImages[index]} 
+                            alt="Bottom garment" 
+                            style={imageStyle}
+                          />
+                          <textarea
+                            className={titillium.className}
+                            placeholder="Description of pants"
+                            value={bottomDescriptions[index] || ''}
+                            onChange={(e) => handleBottomDescriptionChange(index, e.target.value)}
+                            style={inputStyle}
+                          />
+                        </>
+                      )}
                       <textarea
                         className={titillium.className}
                         placeholder="Manequene"
@@ -134,6 +176,23 @@ export default function ImageGallery({ images, generatedImages, isUploadedGaller
                         />
                         <label htmlFor={`upscale-${index}`} style={{ marginLeft: '0.5rem' }} className={titillium.className}>Upscale</label>
                       </div>
+                      {/* Add bottom section */}
+                  
+                      <input
+                        type="file"
+                        id={`bottomImageInput-${index}`}
+                        onChange={(e) => handleBottomImageUpload(e, index)}
+                        accept="image/*"
+                        style={hiddenInputStyle}
+                      />
+                      <button 
+                        style={addBottomIconStyle}
+                        onClick={() => document.getElementById(`bottomImageInput-${index}`).click()}
+                        title="Add bottom garment"
+                      >
+                        {/* <FontAwesomeIcon icon={faArrowDown} /> */}
+                        Bottom
+                      </button>
                     </>
                   ) : (
                     <p className={titillium.className}>{image.description}</p>

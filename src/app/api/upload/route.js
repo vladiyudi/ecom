@@ -102,20 +102,25 @@ export async function POST(request) {
 
     const uploadedImages = await Promise.all(uploadPromises);
 
-    // Add new clothes to the user's clothes array
+    // Add new clothes to the user's clothes array with top property
     for (const image of uploadedImages) {
       user.clothes.push({
-        imageUrl: image.url,
-        name: image.name,
-        description: image.description,
-        modelDescription: image.modelDescription,
-        upscale: image.upscale,
-        aiDescription: image.aiDescription
+        top: {
+          imageUrl: image.url,
+          name: image.name,
+          description: image.description,
+          modelDescription: image.modelDescription,
+          upscale: image.upscale,
+          aiDescription: image.aiDescription
+        },
+        bottom: null
       });
     }
 
     // Save the updated user
     await user.save();
+
+    console.log('User clothes:', user);
 
     return NextResponse.json({ 
       message: 'Images uploaded successfully', 

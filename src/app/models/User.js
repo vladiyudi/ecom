@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const ClothingItemSchema = new mongoose.Schema({
+const GarmentItemSchema = new mongoose.Schema({
   imageUrl: {
     type: String,
     required: true
@@ -16,6 +16,17 @@ const ClothingItemSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  }
+});
+
+const ClothingSetSchema = new mongoose.Schema({
+  top: {
+    type: GarmentItemSchema,
+    default: null
+  },
+  bottom: {
+    type: GarmentItemSchema,
+    default: null
   }
 });
 
@@ -38,7 +49,7 @@ const UserSchema = new mongoose.Schema({
     sparse: true
   },
   clothes: {
-    type: [ClothingItemSchema],
+    type: [ClothingSetSchema],
     default: []  // Initialize as empty array by default
   },
   createdAt: {

@@ -17,14 +17,33 @@ const storage = new Storage({
 const bucket = storage.bucket(process.env.GOOGLE_CLOUD_BUCKET_NAME);
 
 // Helper function to delete a file from Google Cloud Storage
-async function deleteFromBucket(fileName) {
+async function deleteFromBucket(imageUrl) {
   try {
+    if (!imageUrl) return true;
+    const fileName = imageUrl.split('/').pop();
     await bucket.file(fileName).delete();
     return true;
   } catch (error) {
-    console.error(`Error deleting file ${fileName} from bucket:`, error);
+    console.error(`Error deleting file from bucket:`, error);
     return false;
   }
+}
+
+// Helper function to delete both top and bottom images for a clothing item
+async function deleteClothingSet(clothingItem) {
+  const deletePromises = [];
+  
+  // Delete top image if exists
+  if (clothingItem.top && clothingItem.top.imageUrl) {
+    deletePromises.push(deleteFromBucket(clothingItem.top.imageUrl));
+  }
+  
+  // Delete bottom image if exists
+  if (clothingItem.bottom && clothingItem.bottom.imageUrl) {
+    deletePromises.push(deleteFromBucket(clothingItem.bottom.imageUrl));
+  }
+  
+  await Promise.all(deletePromises);
 }
 
 export async function POST(req) {
@@ -34,8 +53,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { imageUrl } = await req.json();
-    const fileName = imageUrl.split('/').pop();
+    const { index } = await req.json();
 
     await connectDB();
     const user = await User.findOne({ email: session.user.email });
@@ -43,17 +61,23 @@ export async function POST(req) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Delete from bucket
-    await deleteFromBucket(fileName);
+    // Get the clothing item to delete
+    const clothingItem = user.clothes[index];
+    if (!clothingItem) {
+      return NextResponse.json({ error: 'Clothing item not found' }, { status: 404 });
+    }
 
-    // Remove from user's clothes array
-    user.clothes = user.clothes.filter(item => item.imageUrl !== imageUrl);
+    // Delete both top and bottom images from bucket
+    await deleteClothingSet(clothingItem);
+
+    // Remove the clothing item from user's clothes array
+    user.clothes.splice(index, 1);
     await user.save();
 
-    return NextResponse.json({ success: true, message: 'Image deleted successfully' });
+    return NextResponse.json({ success: true, message: 'Images deleted successfully' });
   } catch (error) {
-    console.error('Error deleting image:', error);
-    return NextResponse.json({ error: 'Failed to delete image' }, { status: 500 });
+    console.error('Error deleting images:', error);
+    return NextResponse.json({ error: 'Failed to delete images' }, { status: 500 });
   }
 }
 
@@ -72,10 +96,7 @@ export async function DELETE(req) {
     }
 
     // Delete all user's images from bucket
-    const deletePromises = user.clothes.map(item => {
-      const fileName = item.imageUrl.split('/').pop();
-      return deleteFromBucket(fileName);
-    });
+    const deletePromises = user.clothes.map(clothingItem => deleteClothingSet(clothingItem));
     await Promise.all(deletePromises);
 
     // Clear user's clothes array

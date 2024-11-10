@@ -6,7 +6,7 @@ fal.config({
 });
 
 export async function generateFashionModel(prompt) {
-  const result = await fal.subscribe("fal-ai/flux-pro", {
+  const result = await fal.subscribe("fal-ai/flux-pro/v1.1", {
     input: {
       prompt: prompt || "full body shot, fashion model wearing jeans and t-shirt in a neutral pose, full body shot, studio lighting",
       image_size: "portrait_4_3",
@@ -77,4 +77,22 @@ export async function downloadAllImages(images) {
     const imageUrl = image.url || image.generatedImage;
     await downloadImage(imageUrl, `image_${i + 1}.png`);
   }
+}
+
+export async function swapClothesCatVton (humanImageUrl, garmentImageUrl, clothesType) {
+  const result = await fal.subscribe("fal-ai/cat-vton", {
+    input: {
+      human_image_url: humanImageUrl,
+      garment_image_url: garmentImageUrl,
+      cloth_type: clothesType,
+      image_size: "portrait_4_3"
+    },
+    logs: true,
+    onQueueUpdate: (update) => {
+      if (update.status === "IN_PROGRESS") {
+        update.logs.map((log) => log.message).forEach(console.log);
+      }
+    },
+  });
+  return result.image.url;
 }

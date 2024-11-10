@@ -30,8 +30,15 @@ export async function GET() {
         description: item.top.description || '',
         modelDescription: item.top.modelDescription || '',
         upscale: item.top.upscale || false,
-        contentType: 'image/jpeg', // Default content type for uploaded images
-        size: 0 // Size information not stored in user model
+        contentType: 'image/jpeg',
+        size: 0,
+        // Include bottom garment information if it exists
+        bottom: item.bottom ? {
+          name: item.bottom.name,
+          url: item.bottom.imageUrl,
+          description: item.bottom.description || '',
+          aiDescription: item.bottom.aiDescription || ''
+        } : null
       }));
       
     return NextResponse.json(images);

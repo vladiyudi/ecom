@@ -76,7 +76,7 @@ export async function POST(request) {
 
           const metadata = {
             description: aiDescription.outfit || '',
-            modelDescription: modelDescriptions[index] || `full body shot, fashion ${aiDescription.gender} model wearing ${aiDescription.outfit} in a neutral pose, studio lighting`,
+            modelDescription: modelDescriptions[index] || `full body shot, fashion ${aiDescription.gender} model in a neutral pose, studio lighting, wearing ${aiDescription.outfit}`,
             upscale: upscaleFlags[index] === 'true' ? 'true' : 'false',
             aiDescription: aiDescription.outfit,
           };
@@ -88,7 +88,7 @@ export async function POST(request) {
             url: publicUrl,
             name: sanitizedFilename,
             description: aiDescription.outfit || '',
-            modelDescription: modelDescriptions[index] || `full body shot, fashion ${aiDescription.gender} model wearing ${aiDescription.outfit} in a neutral pose, studio lighting`,
+            modelDescription: modelDescriptions[index] || `full body shot, fashion ${aiDescription.gender} model in a neutral pose, studio lighting, wearing ${aiDescription.outfit}`,
             upscale: upscaleFlags[index] === 'true',
             aiDescription: aiDescription.outfit,
           });
@@ -119,8 +119,6 @@ export async function POST(request) {
 
     // Save the updated user
     await user.save();
-
-    console.log('User clothes:', user);
 
     return NextResponse.json({ 
       message: 'Images uploaded successfully', 

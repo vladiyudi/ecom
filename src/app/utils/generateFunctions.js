@@ -10,6 +10,7 @@ export async function generateFashionModel(prompt) {
     input: {
       prompt: prompt || "full body shot, fashion model wearing jeans and t-shirt in a neutral pose, full body shot, studio lighting",
       image_size: "portrait_4_3",
+      safety_tolerance: 5
     },
     logs: true,
     onQueueUpdate: (update) => {
@@ -79,7 +80,7 @@ export async function downloadAllImages(images) {
   }
 }
 
-export async function swapClothesCatVton (humanImageUrl, garmentImageUrl, clothesType) {
+export async function swapClothesCatVton (humanImageUrl, garmentImageUrl, clothesType='lower') {
   const result = await fal.subscribe("fal-ai/cat-vton", {
     input: {
       human_image_url: humanImageUrl,

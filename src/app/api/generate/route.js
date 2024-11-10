@@ -1,4 +1,4 @@
-import { generateFashionModel, generateClothesOnModel, upscaleImage } from '../../utils/generateFunctions';
+import { generateFashionModel, generateClothesOnModel, upscaleImage, swapClothesCatVton } from '../../utils/generateFunctions';
 
 export async function POST(req) {
   const encoder = new TextEncoder();
@@ -15,18 +15,34 @@ export async function POST(req) {
         }
 
         for (const image of images) {
+          const allStages = {}
+
+          console.log("IMAGE", image);
          
           const description = `${image.description || ''}`;
 
           const modelPrompt = `${image.modelDescription || 'full body shot, fashion model wearing jeans and t-shirt in a neutral pose, studio lighting'}`
           
-          const modelImageUrl = await generateFashionModel(modelPrompt);
+          let modelImageUrl = await generateFashionModel(modelPrompt);
+          allStages.model = modelImageUrl
+
+          if (image.bottom && image.bottom.url) {
+            modelImageUrl = await swapClothesCatVton(modelImageUrl, image.bottom.url, 'lower');
+            allStages.lower = modelImageUrl
+          }
+
           
           let generatedImageUrl = await generateClothesOnModel(modelImageUrl, image.url, description);
+          allStages.uper = generatedImageUrl
+
+         
 
           if (image.upscale) {
             generatedImageUrl = await upscaleImage(generatedImageUrl);
+            allStages.final = generatedImageUrl
           }
+
+          console.log("ALL STAGES", allStages);
 
           const result = {
             type: 'outfit',

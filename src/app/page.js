@@ -28,26 +28,35 @@ export default function Home() {
   }, [generatedImages]);
 
   const fetchImages = async () => {
-    const response = await fetch('/api/images');
-    const data = await response.json();
-    setImages(data);
+    try {
+      const response = await fetch('/api/images');
+      if (response.ok) {
+        const data = await response.json();
+        setImages(data);
+      }
+    } catch (error) {
+      console.error('Error fetching images:', error);
+    }
   };
 
   const handleUpload = async (formData) => {
     setIsLoading(true);
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (response.ok) {
-      const result = await response.json();
-      setImages(prevImages => [...prevImages, ...result.images]);
-    } else {
-      console.error('Failed to upload images');
+      if (response.ok) {
+        await fetchImages();
+      } else {
+        console.error('Failed to upload images');
+      }
+    } catch (error) {
+      console.error('Error uploading images:', error);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const handleUpdateDescription = (index, description, modelDescription, upscale) => {
@@ -102,30 +111,44 @@ export default function Home() {
     }
   };
 
-  const handleDeleteImage = async (index) => {
-    const imageToDelete = images[index];
+  const handleDeleteImage = async (itemId) => {
     try {
+      console.log('Sending delete request for item:', itemId); // Debug log
       const response = await fetch('/api/deleteImage', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ imageUrl: imageToDelete.url }),
+        body: JSON.stringify({ itemId }),
       });
 
-      if (response.ok) {
-        setImages(prevImages => prevImages.filter((_, i) => i !== index));
-      } else {
-        console.error('Failed to delete image');
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Delete response error:', errorData); // Debug log
+        throw new Error(errorData.error || 'Failed to delete image');
       }
+
+      // Update local state immediately
+      setImages(prevImages => prevImages.filter(img => img._id !== itemId));
     } catch (error) {
       console.error('Error deleting image:', error);
+      alert('Failed to delete image. Please try again.');
     }
   };
 
   const handleDeleteAllImages = async () => {
-    for (let i = 0; i < images.length; i++) {
-      await handleDeleteImage(0);  // Always delete the first image
+    try {
+      const response = await fetch('/api/deleteImage', {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setImages([]);
+      } else {
+        console.error('Failed to delete all images');
+      }
+    } catch (error) {
+      console.error('Error deleting all images:', error);
     }
   };
 
@@ -146,20 +169,14 @@ export default function Home() {
       <div style={sectionStyle}>
         <h2 style={subHeadingStyle} className={titillium.className}>Uploaded Images</h2>
         <div style={{ marginBottom: '1rem' }}>
-          <button 
-            className={titillium.className}
-            onClick={handleDeleteAllImages}
-            style={images.length === 0 ? disabledButtonStyle : deleteButtonStyle}
-            disabled={images.length === 0}
-          >
-            Delete All
-          </button>
+        
         </div>
         <ImageGallery 
           images={images} 
           isUploadedGallery={true}
           onUpdateDescription={handleUpdateDescription}
           onDeleteImage={handleDeleteImage}
+          onRefreshImages={fetchImages}
           titillium={titillium}
         />
       </div>

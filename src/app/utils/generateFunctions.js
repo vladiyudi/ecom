@@ -1,6 +1,5 @@
 import * as fal from "@fal-ai/serverless-client";
 
-// Initialize the fal client with the API key
 fal.config({
   credentials: process.env.FAL_AI_API_KEY,
 });

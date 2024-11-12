@@ -16,8 +16,6 @@ export async function POST(req) {
 
         for (const image of images) {
           const allStages = {}
-
-          console.log("IMAGE", image);
          
           const description = `${image.description || ''}`;
 
@@ -42,7 +40,6 @@ export async function POST(req) {
             allStages.final = generatedImageUrl
           }
 
-          console.log("ALL STAGES", allStages);
 
           const result = {
             type: 'outfit',

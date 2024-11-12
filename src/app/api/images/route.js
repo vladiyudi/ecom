@@ -21,9 +21,10 @@ export async function GET() {
     }
 
     const images = user.clothes
-      .filter(item => item.top) // Only include items that have a top garment
+      .filter(item => item.top)
       .sort((a, b) => (b.top.createdAt || 0) - (a.top.createdAt || 0))
       .map(item => ({
+        _id: item._id.toString(), // Explicitly include _id and convert to string
         name: item.top.name,
         url: item.top.imageUrl,
         uploadDate: item.top.createdAt,
@@ -32,7 +33,6 @@ export async function GET() {
         upscale: item.top.upscale || false,
         contentType: 'image/jpeg',
         size: 0,
-        // Include bottom garment information if it exists
         bottom: item.bottom ? {
           name: item.bottom.name,
           url: item.bottom.imageUrl,

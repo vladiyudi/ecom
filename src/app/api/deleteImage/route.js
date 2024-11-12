@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
 import User from '@/app/models/User';
 import connectDB from '@/app/lib/mongodb';
+import mongoose from 'mongoose';
 
 const storage = new Storage({
   projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
@@ -53,7 +54,12 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { index } = await req.json();
+    const { itemId } = await req.json();
+    console.log('Received itemId:', itemId); // Debug log
+
+    if (!itemId) {
+      return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
+    }
 
     await connectDB();
     const user = await User.findOne({ email: session.user.email });
@@ -61,27 +67,36 @@ export async function POST(req) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get the clothing item to delete
-    const clothingItem = user.clothes[index];
+    // Find the clothing item by _id
+    const clothingItem = user.clothes.find(item => 
+      item._id.toString() === itemId
+    );
+
     if (!clothingItem) {
+      console.log('Clothing item not found for ID:', itemId); // Debug log
+      console.log('Available IDs:', user.clothes.map(item => item._id.toString())); // Debug log
       return NextResponse.json({ error: 'Clothing item not found' }, { status: 404 });
     }
 
     // Delete both top and bottom images from bucket
     await deleteClothingSet(clothingItem);
 
-    // Remove the clothing item from user's clothes array
-    user.clothes.splice(index, 1);
-    await user.save();
+    // Remove the clothing item from user's clothes array using pull
+    await User.updateOne(
+      { email: session.user.email },
+      { $pull: { clothes: { _id: new mongoose.Types.ObjectId(itemId) } } }
+    );
 
-    return NextResponse.json({ success: true, message: 'Images deleted successfully' });
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Images deleted successfully'
+    });
   } catch (error) {
     console.error('Error deleting images:', error);
     return NextResponse.json({ error: 'Failed to delete images' }, { status: 500 });
   }
 }
 
-// Bulk delete endpoint
 export async function DELETE(req) {
   try {
     const session = await getServerSession(authOptions);
@@ -105,7 +120,7 @@ export async function DELETE(req) {
 
     return NextResponse.json({ 
       success: true, 
-      message: 'All images deleted successfully' 
+      message: 'All images deleted successfully'
     });
   } catch (error) {
     console.error('Error deleting all images:', error);

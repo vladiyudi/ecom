@@ -6,7 +6,7 @@ import {galleryStyle, flexContainerStyle, imageContainerStyle, frameStyle, image
 
 export default function ImageGallery({ images: initialImages, generatedImages, isUploadedGallery, onUpdateDescription, onDeleteImage, onRefreshImages, titillium}) {
   const [modalImage, setModalImage] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingStates, setUploadingStates] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
 
   const displayImages = isUploadedGallery ? initialImages : generatedImages;
@@ -52,25 +52,27 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
   };
 
   const handleBottomImageUpload = async (event, itemId) => {
-    const file = event.target.files[0];
-    if (!file || !itemId) return;
+    const files = event.target.files;
+    if (!files || !itemId) return;
 
     try {
-      setIsUploading(true);
+      setUploadingStates(prev => ({ ...prev, [itemId]: true }));
 
-      const formData = new FormData();
-      formData.append('image', file);
-      formData.append('description', '');
-      formData.append('itemId', itemId);
+      for (let i = 0; i < files.length; i++) {
+        const formData = new FormData();
+        formData.append('image', files[i]);
+        formData.append('description', '');
+        formData.append('itemId', itemId);
 
-      const response = await fetch('/api/uploadBottom', {
-        method: 'POST',
-        body: formData,
-      });
+        const response = await fetch('/api/uploadBottom', {
+          method: 'POST',
+          body: formData,
+        });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to upload bottom image');
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to upload bottom image');
+        }
       }
 
       if (onRefreshImages) {
@@ -81,7 +83,7 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
       console.error('Error uploading bottom image:', error);
       alert('Failed to upload bottom image. Please try again.');
     } finally {
-      setIsUploading(false);
+      setUploadingStates(prev => ({ ...prev, [itemId]: false }));
     }
   };
 
@@ -114,8 +116,8 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
     border: "solid 1px #e5e7eb",
     padding: '8px 16px',
     borderRadius: '4px',
-    cursor: isUploading ? 'not-allowed' : 'pointer',
-    opacity: isUploading ? 0.7 : 1,
+    cursor: 'pointer',
+    opacity: 1,
   };
 
   const deleteAllButtonStyle = {
@@ -223,15 +225,20 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
                             onChange={(e) => handleBottomImageUpload(e, image._id)}
                             accept="image/*"
                             style={hiddenInputStyle}
-                            disabled={isUploading}
+                            multiple
+                            disabled={uploadingStates[image._id]}
                           />
                           <button 
-                            style={addBottomIconStyle}
+                            style={{
+                              ...addBottomIconStyle,
+                              cursor: uploadingStates[image._id] ? 'not-allowed' : 'pointer',
+                              opacity: uploadingStates[image._id] ? 0.7 : 1,
+                            }}
                             onClick={() => document.getElementById(`bottomImageInput-${image._id}`).click()}
                             title="Add bottom garment"
-                            disabled={isUploading}
+                            disabled={uploadingStates[image._id]}
                           >
-                            {isUploading ? 'Uploading...' : 'Bottom'}
+                            {uploadingStates[image._id] ? 'Uploading...' : 'Bottom'}
                           </button>
                         </>
                       )}

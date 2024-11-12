@@ -98,7 +98,7 @@ export const mainStyle = {
     display: 'flex',
     flexDirection: 'column',
     padding: '1rem',
-    paddingInlineEnd: '2rem'
+    paddingInlineEnd: '1rem'
   };
 
   export const inputStyle = {

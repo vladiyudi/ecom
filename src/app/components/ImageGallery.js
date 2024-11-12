@@ -118,6 +118,8 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
     borderRadius: '4px',
     cursor: 'pointer',
     opacity: 1,
+    backgroundColor:"#FCF596",
+    marginTop: '5px'
   };
 
   const deleteAllButtonStyle = {
@@ -136,6 +138,7 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
           style={deleteAllButtonStyle}
           onClick={handleDeleteAll}
           disabled={isDeleting}
+          className={titillium.className}
         >
           <FontAwesomeIcon icon={faTrash} /> Delete All
         </button>
@@ -229,6 +232,7 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
                             disabled={uploadingStates[image._id]}
                           />
                           <button 
+                          className={titillium.className}
                             style={{
                               ...addBottomIconStyle,
                               cursor: uploadingStates[image._id] ? 'not-allowed' : 'pointer',
@@ -238,7 +242,7 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
                             title="Add bottom garment"
                             disabled={uploadingStates[image._id]}
                           >
-                            {uploadingStates[image._id] ? 'Uploading...' : 'Bottom'}
+                            {uploadingStates[image._id] ? 'Uploading...' : 'Add Bottom'}
                           </button>
                         </>
                       )}

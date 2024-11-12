@@ -6,7 +6,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../lib/auth';
 import User from '../../models/User';
 import connectDB from '../../lib/mongodb';
-import mongoose from 'mongoose';
 
 const storage = new Storage({
   projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
@@ -97,6 +96,9 @@ export async function POST(request) {
       description: uploadResult.description,
       aiDescription: uploadResult.aiDescription,
     };
+
+    clothingItem.top.modelDescription = `${clothingItem.top.modelDescription} and ${clothingItem.bottom.description}`;
+    
 
     await user.save();
 

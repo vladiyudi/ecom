@@ -30,6 +30,26 @@ const ClothingSetSchema = new mongoose.Schema({
   }
 });
 
+const GeneratedImageSchema = new mongoose.Schema({
+  description: String,
+  imageUrl: String
+});
+
+const CollectionSchema = new mongoose.Schema({
+  date: {
+    type: Date,
+    default: Date.now
+  },
+  name: {
+    type: String,
+    default: ""
+  },
+  images: {
+    type: [GeneratedImageSchema],
+    default: []
+  }
+});
+
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -50,7 +70,11 @@ const UserSchema = new mongoose.Schema({
   },
   clothes: {
     type: [ClothingSetSchema],
-    default: []  // Initialize as empty array by default
+    default: []
+  },
+  collections: {
+    type: [CollectionSchema],
+    default: []
   },
   createdAt: {
     type: Date,

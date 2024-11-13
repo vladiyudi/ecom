@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import ImageUpload from './components/ImageUpload';
 import ImageGallery from './components/ImageGallery';
+import GeneratedGallery from './components/GeneratedGallery';
 import { downloadAllImages } from './utils/generateFunctions';
 import { Titillium_Web } from '@next/font/google'
 import {mainStyle, headingStyle, sectionStyle, subHeadingStyle, buttonStyle, disabledButtonStyle, deleteButtonStyle, loaderContainerStyle, loaderTextStyle} from './utils/styles';
@@ -13,19 +14,32 @@ const titillium = Titillium_Web({
 
 export default function Home() {
   const [images, setImages] = useState([]);
-  const [generatedImages, setGeneratedImages] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const generatedGalleryRef = useRef(null);
 
   useEffect(() => {
     fetchImages();
+    fetchCollections();
   }, []);
 
   useEffect(() => {
-    if (generatedImages.length > 0 && generatedGalleryRef.current) {
+    if (collections.length > 0 && generatedGalleryRef.current) {
       generatedGalleryRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [generatedImages]);
+  }, [collections]);
+
+  const fetchCollections = async () => {
+    try {
+      const response = await fetch('/api/collections');
+      if (response.ok) {
+        const data = await response.json();
+        setCollections(data);
+      }
+    } catch (error) {
+      console.error('Error fetching collections:', error);
+    }
+  };
 
   const fetchImages = async () => {
     try {
@@ -67,18 +81,51 @@ export default function Home() {
     });
   };
 
-  const handleUpdateGeneratedDescription = (index, description, modelDescription, upscale, bottom) => {
-    setGeneratedImages(prevImages => {
-      const newImages = [...prevImages];
-      newImages[index] = { 
-        ...newImages[index], 
-        description,
-        modelDescription,
-        upscale,
-        bottomDescription: bottom?.description || newImages[index].bottomDescription
-      };
-      return newImages;
-    });
+  const handleUpdateCollectionName = async (collectionIndex, name) => {
+    try {
+      const response = await fetch('/api/collections', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ collectionIndex, name }),
+      });
+
+      if (response.ok) {
+        const updatedCollections = await response.json();
+        setCollections(updatedCollections);
+      }
+    } catch (error) {
+      console.error('Error updating collection name:', error);
+    }
+  };
+
+  const handleDeleteCollection = async (collectionIndex) => {
+    if (window.confirm('Are you sure you want to delete this collection?')) {
+      try {
+        const response = await fetch('/api/deleteCollection', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ collectionIndex }),
+        });
+
+        if (response.ok) {
+          const updatedCollections = await response.json();
+          setCollections(updatedCollections);
+        }
+      } catch (error) {
+        console.error('Error deleting collection:', error);
+      }
+    }
+  };
+
+  const handleDownloadCollection = (collection) => {
+    downloadAllImages(collection.images.map(img => ({
+      generatedImage: img.imageUrl,
+      description: img.description
+    })));
   };
 
   const handleStreamingResponse = async (response) => {
@@ -95,7 +142,7 @@ export default function Home() {
       for (const line of lines) {
         const data = JSON.parse(line);
         if (data.type === 'outfit') {
-          setGeneratedImages(prev => [...prev, data]);
+          await fetchCollections(); // Refresh collections after each image is generated
         }
       }
     }
@@ -103,7 +150,6 @@ export default function Home() {
 
   const handleGenerate = async () => {
     setIsLoading(true);
-    setGeneratedImages([]);
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
@@ -127,7 +173,6 @@ export default function Home() {
 
   const handleDeleteImage = async (itemId) => {
     try {
-      console.log('Sending delete request for item:', itemId); // Debug log
       const response = await fetch('/api/deleteImage', {
         method: 'POST',
         headers: {
@@ -138,20 +183,14 @@ export default function Home() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Delete response error:', errorData); // Debug log
         throw new Error(errorData.error || 'Failed to delete image');
       }
 
-      // Update local state immediately
       setImages(prevImages => prevImages.filter(img => img._id !== itemId));
     } catch (error) {
       console.error('Error deleting image:', error);
       alert('Failed to delete image. Please try again.');
     }
-  };
-
-  const handleDownloadAllImages = (imageSet) => {
-    downloadAllImages(imageSet);
   };
 
   return (
@@ -166,9 +205,6 @@ export default function Home() {
   
       <div style={sectionStyle}>
         <h2 style={subHeadingStyle} className={titillium.className}>Uploaded Images</h2>
-        <div style={{ marginBottom: '1rem' }}>
-        
-        </div>
         <ImageGallery 
           images={images} 
           isUploadedGallery={true}
@@ -197,22 +233,21 @@ export default function Home() {
         </div>
       )}
 
-      {generatedImages.length > 0 && (
+      {collections.length > 0 && (
         <div style={sectionStyle} ref={generatedGalleryRef}>
-          <h2 style={subHeadingStyle} className={titillium.className}>Generated Images</h2>
-          <div style={{ marginBottom: '1rem' }}>
-            <button 
-              onClick={() => handleDownloadAllImages(generatedImages)}
-              style={buttonStyle}
-              className={titillium.className}
-            >
-              Download All
-            </button>
-          </div>
-          <ImageGallery 
-            generatedImages={generatedImages}
-            isUploadedGallery={false}
-            onUpdateDescription={handleUpdateGeneratedDescription}
+          <h2 style={subHeadingStyle} className={titillium.className}>Generated Collections</h2>
+          <GeneratedGallery 
+            collections={collections}
+            onUpdateDescription={(collectionIndex, imageIndex, description) => {
+              setCollections(prevCollections => {
+                const newCollections = [...prevCollections];
+                newCollections[collectionIndex].images[imageIndex].description = description;
+                return newCollections;
+              });
+            }}
+            onUpdateCollectionName={handleUpdateCollectionName}
+            onDeleteCollection={handleDeleteCollection}
+            onDownloadCollection={handleDownloadCollection}
             titillium={titillium}
           />
         </div>

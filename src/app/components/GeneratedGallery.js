@@ -43,6 +43,13 @@ export default function GeneratedGallery({ collections, onUpdateDescription, onU
     return map;
   }, {});
 
+  const handleCollectionNameChange = (index, e) => {
+    const newValue = e.target.value;
+    if (onUpdateCollectionName) {
+      onUpdateCollectionName(index, newValue);
+    }
+  };
+
   return (
     <>
       <div style={galleryStyle}>
@@ -52,15 +59,20 @@ export default function GeneratedGallery({ collections, onUpdateDescription, onU
             <div key={collection._id || originalIndex} className="mb-8">
               <div className="flex items-center justify-start gap-4 mb-4">
                 <div className="flex items-baseline gap-4">
-                  <span className="text-sm text-gray-500">{formatDate(collection.date)}</span>
+                 
                   <input
                     type="text"
                     placeholder="Collection Name"
-                    value={collection.name}
-                    onChange={(e) => onUpdateCollectionName && onUpdateCollectionName(originalIndex, e.target.value)}
-                    className={`${titillium.className} px-3 py-1 border rounded-md`}
-                    style = {{border:'none', fontSize:'1.3rem'}}
+                    defaultValue={collection.name}
+                    onInput={(e) => handleCollectionNameChange(originalIndex, e)}
+                    className={`${titillium.className} px-3 py-1 rounded-md`}
+                    style={{
+                      border: 'none',
+                      fontSize: '1.3rem',
+                      outline: 'none'
+                    }}
                   />
+                   <span className="text-sm text-gray-500">{formatDate(collection.date)}</span>
                 </div>
                 <div className="flex gap-1">
                  

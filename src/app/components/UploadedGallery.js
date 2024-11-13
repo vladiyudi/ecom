@@ -6,8 +6,12 @@ import {galleryStyle, flexContainerStyle, imageContainerStyle, frameStyle, image
 import { Switch } from "@/components/ui/switch"
 import ShinyButton from "@/components/ui/shiny-button";
 import HyperText from "@/components/ui/hyper-text";
+import { RainbowButton } from "@/components/ui/rainbow-button";
+import { disabledButtonStyle, buttonStyle } from '../utils/styles'; 
 
-export default function UploadedGallery({ images, onUpdateDescription, onDeleteImage, onRefreshImages, titillium }) {
+
+
+export default function UploadedGallery({ images, onUpdateDescription, onDeleteImage, onRefreshImages, titillium, isLoading, handleGenerate }) {
   const [modalImage, setModalImage] = useState(null);
   const [uploadingStates, setUploadingStates] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
@@ -121,14 +125,23 @@ export default function UploadedGallery({ images, onUpdateDescription, onDeleteI
   return (
     <>
       {images && images.length > 0 && (
-        <button
-          style={deleteAllButtonStyle}
+        <div className='flex justify-end'>
+        <ShinyButton
+          // style={deleteAllButtonStyle}
+  
           onClick={handleDeleteAll}
           disabled={isDeleting}
-          className={titillium.className}
+          className={`${titillium.className} border`}
         >
           <FontAwesomeIcon icon={faTrash} /> Delete All
-        </button>
+        </ShinyButton>
+        {/* <RainbowButton
+        onClick={handleGenerate}
+        style={isLoading || images.length === 0 ? disabledButtonStyle : buttonStyle}
+        disabled={isLoading || images.length === 0}
+        className={`${titillium.className}`}
+        >Generate Outfits</RainbowButton> */}
+        </div>
       )}
       <div style={galleryStyle}>
         <div style={flexContainerStyle}>

@@ -1,6 +1,10 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import backgroundImage from '../images/backgroundImage.png';
+
+console.log(backgroundImage);
+
 
 export default function ImageUpload({ onUpload, titillium }) {
   const [error, setError] = useState('');
@@ -43,7 +47,8 @@ export default function ImageUpload({ onUpload, titillium }) {
   };
 
   const containerStyle = {
-    marginBottom: '2rem'
+    marginBottom: '2rem',
+    backgroundImage: backgroundImage
   };
 
   const dropzoneStyle = {

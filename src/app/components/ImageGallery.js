@@ -2,7 +2,7 @@
 import UploadedGallery from './UploadedGallery';
 import GeneratedGallery from './GeneratedGallery';
 
-export default function ImageGallery({ images, generatedImages, isUploadedGallery, onUpdateDescription, onDeleteImage, onRefreshImages, titillium }) {
+export default function ImageGallery({ images, generatedImages, isUploadedGallery, onUpdateDescription, onDeleteImage, onRefreshImages, titillium, isLoading, handleGenerate }) {
   if (isUploadedGallery) {
     return (
       <UploadedGallery
@@ -11,6 +11,8 @@ export default function ImageGallery({ images, generatedImages, isUploadedGaller
         onDeleteImage={onDeleteImage}
         onRefreshImages={onRefreshImages}
         titillium={titillium}
+        isLoading={isLoading}
+        handleGenerate={handleGenerate}
       />
     );
   }

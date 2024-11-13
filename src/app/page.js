@@ -8,6 +8,9 @@ import { downloadAllImages } from './utils/generateFunctions';
 import { Titillium_Web } from '@next/font/google'
 import {mainStyle, headingStyle, sectionStyle, subHeadingStyle, buttonStyle, disabledButtonStyle, deleteButtonStyle, loaderContainerStyle, loaderTextStyle} from './utils/styles';
 import LinearProgress from '@mui/material/LinearProgress';
+import { RainbowButton } from "@/components/ui/rainbow-button";
+import HyperText from '@/components/ui/hyper-text';
+import Navbar from './components/Navbar';
 
 const titillium = Titillium_Web({ 
   weight: '400', subsets: ['latin'] });
@@ -195,16 +198,19 @@ export default function Home() {
 
   return (
     <main style={mainStyle}>
-      <h1 style={headingStyle} className={titillium.className}>Click Fashion</h1>
+      <Navbar titillium={titillium}/>
+      <div className={`flex justify-center items-center ${titillium.className} text-5xl mb-20 mt-3`}>
+        <HyperText text={"KNBL FSHN"} className={`${titillium.className}`}/>
+      </div>
       
       <div style={sectionStyle}>
-        <h2 style={subHeadingStyle} className={titillium.className}>Upload Images</h2>
-        <ImageUpload onUpload={handleUpload} titillium={titillium}/>
+        <ImageUpload onUpload={handleUpload} titillium={titillium} />
         {isLoading && <LinearProgress style={{ marginTop: '1rem' }} color="primary" />}
       </div>
   
-      <div style={sectionStyle}>
-        <h2 style={subHeadingStyle} className={titillium.className}>Uploaded Images</h2>
+      <div style={sectionStyle} className='mt-16'>
+       
+     
         <ImageGallery 
           images={images} 
           isUploadedGallery={true}
@@ -212,19 +218,19 @@ export default function Home() {
           onDeleteImage={handleDeleteImage}
           onRefreshImages={fetchImages}
           titillium={titillium}
+          isLoading={isLoading}
+          handleGenerate={handleGenerate}
         />
-      </div>
-      
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <button 
-          className={titillium.className}
+           <div style={{ textAlign: 'center', marginBottom: '2rem' }} className='mt-10'>
+        
+        <RainbowButton  className={`${titillium.className} `}
           onClick={handleGenerate}
           style={isLoading || images.length === 0 ? disabledButtonStyle : buttonStyle}
-          disabled={isLoading || images.length === 0}
-        >
-          Generate Clothes
-        </button>
+          disabled={isLoading || images.length === 0}>Generate Outfits</RainbowButton>
+      </div >
       </div>
+      
+  
 
       {isLoading && (
         <div style={loaderContainerStyle}>
@@ -234,8 +240,11 @@ export default function Home() {
       )}
 
       {collections.length > 0 && (
-        <div style={sectionStyle} ref={generatedGalleryRef}>
-          <h2 style={subHeadingStyle} className={titillium.className}>Generated Collections</h2>
+        <div style={sectionStyle} ref={generatedGalleryRef} >
+          {/* <h2 style={subHeadingStyle} className={`${titillium.className} flex justify-center pb-6 pt-12`}>Generated Collections</h2> */}
+          <div className={`flex justify-center items-center ${titillium.className} text-4xl mb-9 mt-20`}>
+      <HyperText text={"COLLECTIONS"} className={`${titillium.className}`}/>
+      </div>
           <GeneratedGallery 
             collections={collections}
             onUpdateDescription={(collectionIndex, imageIndex, description) => {

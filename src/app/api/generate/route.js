@@ -15,6 +15,7 @@ export async function POST(req) {
         }
 
         for (const image of images) {
+          console.log('Received image:', image);
           const allStages = {}
          
           const description = `${image.description || ''}`;

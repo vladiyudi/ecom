@@ -2,7 +2,10 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faDownload, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
-import {galleryStyle, flexContainerStyle, imageContainerStyle, frameStyle, imageStyle, inputContainerStyle, inputStyle, checkboxContainerStyle, modalStyle, modalImageStyle, iconButtonStyle} from '../utils/styles';
+import {galleryStyle, flexContainerStyle, imageContainerStyle, frameStyle, imageStyle, inputContainerStyle, inputStyle, checkboxContainerStyle, modalStyle, modalImageStyle, iconButtonStyle, modelPromptStyle} from '../utils/styles';
+import { Switch } from "@/components/ui/switch"
+import ShinyButton from "@/components/ui/shiny-button";
+import HyperText from "@/components/ui/hyper-text";
 
 export default function ImageGallery({ images: initialImages, generatedImages, isUploadedGallery, onUpdateDescription, onDeleteImage, onRefreshImages, titillium}) {
   const [modalImage, setModalImage] = useState(null);
@@ -118,7 +121,6 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
     borderRadius: '4px',
     cursor: 'pointer',
     opacity: 1,
-    backgroundColor:"#FCF596",
     marginTop: '5px'
   };
 
@@ -177,10 +179,10 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
                   {isUploadedGallery ? (
                     <>
                       <textarea
-                        className={titillium.className}
+                        className={`${titillium.className} mb-3`}
                         placeholder="Garment"
                         value={image.description || ''}
-                        onChange={(e) => onUpdateDescription(index, e.target.value, image.modelDescription, image.upscale)}
+                        onChange={(e) => onUpdateDescription(index, e.target.value, image.modelDescription, image.upscale, image.bottom)}
                         style={inputStyle}
                       />
                       
@@ -196,28 +198,35 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
                             className={titillium.className}
                             placeholder="Description of pants"
                             value={image.bottom.description || ''}
-                            onChange={(e) => onUpdateDescription(index, image.description, image.modelDescription, image.upscale)}
+                            onChange={(e) => {
+                              const updatedBottom = {
+                                ...image.bottom,
+                                description: e.target.value
+                              };
+                              onUpdateDescription(index, image.description, image.modelDescription, image.upscale, updatedBottom);
+                            }}
                             style={inputStyle}
                           />
                         </>
                       )}
-
-                      <textarea
-                        className={titillium.className}
-                        placeholder="Manequene"
-                        value={image.modelDescription || ''}
-                        onChange={(e) => onUpdateDescription(index, image.description, e.target.value, image.upscale)}
-                        style={inputStyle}
-                      />
-                      
-                      <div style={checkboxContainerStyle}>
-                        <input
-                          type="checkbox"
-                          id={`upscale-${index}`}
-                          checked={image.upscale === true}
-                          onChange={(e) => onUpdateDescription(index, image.description, image.modelDescription, e.target.checked)}
+                      <div className='flex flex-col items-center'>
+                        <HyperText text={"Prompt"} />
+                        <textarea
+                          className={titillium.className}
+                          placeholder="Manequene"
+                          value={image.modelDescription || ''}
+                          onChange={(e) => onUpdateDescription(index, image.description, e.target.value, image.upscale, image.bottom)}
+                          style={modelPromptStyle}
                         />
-                        <label htmlFor={`upscale-${index}`} style={{ marginLeft: '0.5rem' }} className={titillium.className}>Upscale</label>
+                      </div>
+                      <div style={checkboxContainerStyle}>
+                        <label htmlFor={`upscale-${index}`} style={{ marginLeft: '0.5rem', marginRight: '0.5rem' }} className={titillium.className}>Speed</label>
+                        <Switch id={`upscale-${index}`}
+                         className="data-[state=checked]:bg-green-700 data-[state=unchecked]:bg-gray-400"
+                          checked={image.upscale === true}
+                          onCheckedChange={(e) => {
+                            onUpdateDescription(index, image.description, image.modelDescription, e, image.bottom)}} />
+                        <label htmlFor={`upscale-${index}`} style={{ marginLeft: '0.5rem' }} className={titillium.className}>Quality</label>
                       </div>
 
                       {!image.bottom && image._id && (
@@ -231,8 +240,8 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
                             multiple
                             disabled={uploadingStates[image._id]}
                           />
-                          <button 
-                          className={titillium.className}
+                          <ShinyButton 
+                            className={titillium.className}
                             style={{
                               ...addBottomIconStyle,
                               cursor: uploadingStates[image._id] ? 'not-allowed' : 'pointer',
@@ -243,12 +252,27 @@ export default function ImageGallery({ images: initialImages, generatedImages, i
                             disabled={uploadingStates[image._id]}
                           >
                             {uploadingStates[image._id] ? 'Uploading...' : 'Add Bottom'}
-                          </button>
+                          </ShinyButton>
                         </>
                       )}
                     </>
                   ) : (
-                    <p className={titillium.className}>{image.description}</p>
+                    <>
+                      <textarea
+                        className={`${titillium.className} mb-3`}
+                        placeholder="Top Description"
+                        value={image.description || ''}
+                        onChange={(e) => onUpdateDescription && onUpdateDescription(index, e.target.value, image.modelDescription, image.upscale)}
+                        style={inputStyle}
+                      />
+                      <textarea
+                        className={`${titillium.className} mb-3`}
+                        placeholder="Bottom Description"
+                        value={image.bottomDescription || ''}
+                        onChange={(e) => onUpdateDescription && onUpdateDescription(index, image.description, image.modelDescription, image.upscale, { description: e.target.value })}
+                        style={inputStyle}
+                      />
+                    </>
                   )}
                 </div>
               </div>

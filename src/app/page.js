@@ -59,10 +59,24 @@ export default function Home() {
     }
   };
 
-  const handleUpdateDescription = (index, description, modelDescription, upscale) => {
+  const handleUpdateDescription = (index, description, modelDescription, upscale, bottom) => {
     setImages(prevImages => {
       const newImages = [...prevImages];
-      newImages[index] = { ...newImages[index], description, modelDescription, upscale };
+      newImages[index] = { ...newImages[index], description, modelDescription, upscale, bottom };
+      return newImages;
+    });
+  };
+
+  const handleUpdateGeneratedDescription = (index, description, modelDescription, upscale, bottom) => {
+    setGeneratedImages(prevImages => {
+      const newImages = [...prevImages];
+      newImages[index] = { 
+        ...newImages[index], 
+        description,
+        modelDescription,
+        upscale,
+        bottomDescription: bottom?.description || newImages[index].bottomDescription
+      };
       return newImages;
     });
   };
@@ -136,22 +150,6 @@ export default function Home() {
     }
   };
 
-  const handleDeleteAllImages = async () => {
-    try {
-      const response = await fetch('/api/deleteImage', {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setImages([]);
-      } else {
-        console.error('Failed to delete all images');
-      }
-    } catch (error) {
-      console.error('Error deleting all images:', error);
-    }
-  };
-
   const handleDownloadAllImages = (imageSet) => {
     downloadAllImages(imageSet);
   };
@@ -214,6 +212,7 @@ export default function Home() {
           <ImageGallery 
             generatedImages={generatedImages}
             isUploadedGallery={false}
+            onUpdateDescription={handleUpdateGeneratedDescription}
             titillium={titillium}
           />
         </div>

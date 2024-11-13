@@ -97,8 +97,8 @@ export const mainStyle = {
   export const inputContainerStyle = {
     display: 'flex',
     flexDirection: 'column',
-    padding: '1rem',
-    paddingInlineEnd: '1rem'
+    // padding: '1rem',
+    // paddingInlineEnd: '2rem'
   };
 
   export const inputStyle = {
@@ -108,13 +108,37 @@ export const mainStyle = {
     border: '1px solid #d1d5db',
     borderRadius: '0.25rem',
     outline: 'none',
-    marginBottom: '0.5rem'
+    // marginBottom: '0.5rem',
+    // marginRight: '0.5rem',
+    // marginLeft: '0.5rem',
+    // margin: '0.5rem',
+    border: 'none',
+    textAlign: 'center'
+  };
+
+  export const modelPromptStyle = {
+    width: '100%',
+    padding: '0 0.5rem',
+    fontSize: '0.875rem',
+    border: '1px solid #d1d5db',
+    borderRadius: '0.25rem',
+    outline: 'none',
+    height: '110px',
+    // marginBottom: '0.5rem',
+    // marginRight: '0.5rem',
+    // marginLeft: '0.5rem',
+    // margin: '0.5rem',
+    border: 'none',
+    textAlign: 'center'
   };
 
   export const checkboxContainerStyle = {
     display: 'flex',
     alignItems: 'center',
-    marginTop: '0.5rem'
+    marginTop: '0.5rem',
+    // border: '1px solid #d1d5db',
+    justifyContent: 'center',
+    marginBottom: '0.5rem',
   };
 
   export const iconButtonStyle = {

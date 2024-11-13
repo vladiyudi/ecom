@@ -34,7 +34,7 @@ export default function ImageUpload({ onUpload, titillium }) {
       formData.append('images', file);
       formData.append('descriptions', ''); // Empty description for now
       formData.append('modelDescriptions', ''); // Empty model description
-      formData.append('upscale', 'false'); // Default upscale flag
+      formData.append('upscale', 'true'); // Set upscale to true by default
     });
 
     if (validFiles.length > 0) {

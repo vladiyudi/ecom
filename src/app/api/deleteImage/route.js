@@ -1,8 +1,8 @@
 import { Storage } from '@google-cloud/storage';
 import { NextResponse } from 'next/server';
-import { formatPrivateKey } from '../../utils/fixEnvVar';
+import { formatPrivateKey } from '@/app/utils/fixEnvVar';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '@/app/lib/auth';
 import User from '@/app/models/User';
 import connectDB from '@/app/lib/mongodb';
 import mongoose from 'mongoose';

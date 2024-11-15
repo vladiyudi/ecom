@@ -1,5 +1,7 @@
+export const dynamic = "force-dynamic";
+
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '@/app/lib/auth';
 import { NextResponse } from 'next/server';
 import User from '@/app/models/User';
 import connectDB from '@/app/lib/mongodb';

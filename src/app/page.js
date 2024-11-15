@@ -21,6 +21,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const generatedGalleryRef = useRef(null);
   const [isUploading, setUploading] = useState(false);
+  const [justGenerated, setJustGenerated] = useState(false);
 
   useEffect(() => {
     fetchImages();
@@ -28,10 +29,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (collections.length > 0 && generatedGalleryRef.current) {
+    if (collections.length > 0 && justGenerated && generatedGalleryRef.current) {
       generatedGalleryRef.current.scrollIntoView({ behavior: 'smooth' });
+      setJustGenerated(false);
     }
-  }, [collections]);
+  }, [collections, justGenerated]);
 
   const fetchCollections = async () => {
     try {
@@ -146,6 +148,7 @@ export default function Home() {
       for (const line of lines) {
         const data = JSON.parse(line);
         if (data.type === 'outfit') {
+          setJustGenerated(true);
           await fetchCollections(); // Refresh collections after each image is generated
         }
       }

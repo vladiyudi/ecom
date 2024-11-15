@@ -20,7 +20,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold text-center mb-6">Welcome to Click Fashion</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">KNBL FSHN</h1>
         <div className="space-y-4">
           <Button
             onClick={handleGoogleSignIn}
@@ -44,7 +44,7 @@ export default function LoginPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            <span>Continue with Google</span>
+            <span>Login with Google</span>
           </Button>
         </div>
       </div>

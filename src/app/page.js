@@ -10,7 +10,7 @@ import {mainStyle, sectionStyle, buttonStyle, disabledButtonStyle, loaderContain
 import LinearProgress from '@mui/material/LinearProgress';
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import HyperText from '@/components/ui/hyper-text';
-import Navbar from './components/Navbar';
+import Navbar from './components/LogoutButton';
 
 const titillium = Titillium_Web({ 
   weight: '400', subsets: ['latin'] });

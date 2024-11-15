@@ -2,7 +2,6 @@
 
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import ShinyButton from '@/components/ui/shiny-button';
 import ShimmerButton from "@/components/ui/shimmer-button";
 
 export default function Navbar({titillium}) {

@@ -135,12 +135,6 @@ export default function UploadedGallery({ images, onUpdateDescription, onDeleteI
         >
           <FontAwesomeIcon icon={faTrash} /> Delete All
         </ShinyButton>
-        {/* <RainbowButton
-        onClick={handleGenerate}
-        style={isLoading || images.length === 0 ? disabledButtonStyle : buttonStyle}
-        disabled={isLoading || images.length === 0}
-        className={`${titillium.className}`}
-        >Generate Outfits</RainbowButton> */}
         </div>
       )}
       <div style={galleryStyle}>
@@ -207,13 +201,13 @@ export default function UploadedGallery({ images, onUpdateDescription, onDeleteI
                     />
                   </div>
                   <div style={checkboxContainerStyle}>
-                    <label htmlFor={`upscale-${index}`} style={{ marginLeft: '0.5rem', marginRight: '0.5rem' }} className={titillium.className}>Speed</label>
+                    <label htmlFor={`upscale-${index}`} style={{ marginLeft: '0.5rem', marginRight: '0.5rem' }} className={`${titillium.className} text-gray-500`}>Speed</label>
                     <Switch id={`upscale-${index}`}
                       className="data-[state=checked]:bg-green-700 data-[state=unchecked]:bg-gray-400"
                       checked={image.upscale === true}
                       onCheckedChange={(e) => {
                         onUpdateDescription(index, image.description, image.modelDescription, e, image.bottom)}} />
-                    <label htmlFor={`upscale-${index}`} style={{ marginLeft: '0.5rem' }} className={titillium.className}>Quality</label>
+                    <label htmlFor={`upscale-${index}`} style={{ marginLeft: '0.5rem' }} className={`${titillium.className} text-gray-500`}>Quality</label>
                   </div>
 
                   {!image.bottom && image._id && (

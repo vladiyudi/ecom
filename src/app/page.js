@@ -6,7 +6,7 @@ import ImageGallery from './components/ImageGallery';
 import GeneratedGallery from './components/GeneratedGallery';
 import { downloadAllImages } from './utils/generateFunctions';
 import { Titillium_Web } from '@next/font/google'
-import {mainStyle, headingStyle, sectionStyle, subHeadingStyle, buttonStyle, disabledButtonStyle, deleteButtonStyle, loaderContainerStyle, loaderTextStyle} from './utils/styles';
+import {mainStyle, sectionStyle, buttonStyle, disabledButtonStyle, loaderContainerStyle, loaderTextStyle} from './utils/styles';
 import LinearProgress from '@mui/material/LinearProgress';
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import HyperText from '@/components/ui/hyper-text';
@@ -20,6 +20,7 @@ export default function Home() {
   const [collections, setCollections] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const generatedGalleryRef = useRef(null);
+  const [isUploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchImages();
@@ -57,7 +58,7 @@ export default function Home() {
   };
 
   const handleUpload = async (formData) => {
-    setIsLoading(true);
+    setUploading(true);
     try {
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -72,7 +73,7 @@ export default function Home() {
     } catch (error) {
       console.error('Error uploading images:', error);
     } finally {
-      setIsLoading(false);
+      setUploading(false);
     }
   };
 
@@ -205,7 +206,7 @@ export default function Home() {
       
       <div style={sectionStyle}>
         <ImageUpload onUpload={handleUpload} titillium={titillium} />
-        {isLoading && <LinearProgress style={{ marginTop: '1rem' }} color="primary" />}
+        {isUploading && <LinearProgress style={{ marginTop: '1rem' }} sx={{ color: 'black' }}/>}
       </div>
   
       <div style={sectionStyle} className='mt-16'>
@@ -218,7 +219,7 @@ export default function Home() {
           onDeleteImage={handleDeleteImage}
           onRefreshImages={fetchImages}
           titillium={titillium}
-          isLoading={isLoading}
+          isLoading={isUploading}
           handleGenerate={handleGenerate}
         />
            <div style={{ textAlign: 'center', marginBottom: '2rem' }} className='mt-10'>
@@ -226,7 +227,7 @@ export default function Home() {
         <RainbowButton  className={`${titillium.className} `}
           onClick={handleGenerate}
           style={isLoading || images.length === 0 ? disabledButtonStyle : buttonStyle}
-          disabled={isLoading || images.length === 0}>Generate Outfits</RainbowButton>
+          disabled={isLoading || images.length === 0}>Generate Collection</RainbowButton>
       </div >
       </div>
       
@@ -235,13 +236,12 @@ export default function Home() {
       {isLoading && (
         <div style={loaderContainerStyle}>
           <p style={loaderTextStyle} className={titillium.className}>Generating images... This may take a while.</p>
-          <div className="loader"></div>
+          <LinearProgress style={{ marginTop: '1rem' }} color="warning" />
         </div>
       )}
 
       {collections.length > 0 && (
         <div style={sectionStyle} ref={generatedGalleryRef} >
-          {/* <h2 style={subHeadingStyle} className={`${titillium.className} flex justify-center pb-6 pt-12`}>Generated Collections</h2> */}
           <div className={`flex justify-center items-center ${titillium.className} text-4xl mb-9 mt-20`}>
       <HyperText text={"COLLECTIONS"} className={`${titillium.className}`}/>
       </div>

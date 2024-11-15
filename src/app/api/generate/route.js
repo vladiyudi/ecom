@@ -44,7 +44,7 @@ export async function POST(req) {
         const collectionIndex = user.collections.length - 1;
 
         for (const image of images) {
-          console.log('Received image:', image);
+         
           const allStages = {}
          
           const description = `${image.description || ''}`;

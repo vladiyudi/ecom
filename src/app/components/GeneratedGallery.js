@@ -57,7 +57,7 @@ export default function GeneratedGallery({ collections, onUpdateDescription, onU
           const collection = collections[originalIndex];
           return (
             <div key={collection._id || originalIndex} className="mb-8">
-              <div className="flex items-center justify-start gap-4 mb-4">
+              <div className="flex items-center justify-between gap-4 mb-4">
                 <div className="flex items-baseline gap-4">
                  
                   <input
@@ -72,7 +72,7 @@ export default function GeneratedGallery({ collections, onUpdateDescription, onU
                       outline: 'none'
                     }}
                   />
-                   <span className="text-sm text-gray-500">{formatDate(collection.date)}</span>
+                  
                 </div>
                 <div className="flex gap-1">
                  
@@ -89,6 +89,7 @@ export default function GeneratedGallery({ collections, onUpdateDescription, onU
                     delete collection
                   </ShinyButton>
                 </div>
+                <span className="text-sm text-gray-500">{formatDate(collection.date)}</span>
               </div>
               <div style={flexContainerStyle}>
                 {collection.images.map((image, imageIndex) => (

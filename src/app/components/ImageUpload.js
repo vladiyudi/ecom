@@ -1,13 +1,12 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import backgroundImage from '../images/backgroundImage.png';
-
-console.log(backgroundImage);
+import backgroundImage from '../images/1.png';
 
 
 export default function ImageUpload({ onUpload, titillium }) {
   const [error, setError] = useState('');
+  const [isHovered, setIsHovered] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
@@ -48,7 +47,6 @@ export default function ImageUpload({ onUpload, titillium }) {
 
   const containerStyle = {
     marginBottom: '2rem',
-    backgroundImage: backgroundImage
   };
 
   const dropzoneStyle = {
@@ -58,16 +56,25 @@ export default function ImageUpload({ onUpload, titillium }) {
     justifyContent: 'center',
     width: '100%',
     height: '200px',
-    border: '2px dashed #d1d5db',
     borderRadius: '0.5rem',
     cursor: 'pointer',
-    backgroundColor: '#f3f4f6'
+    backgroundColor: '#f3f4f6',
+    backgroundImage: `url(${backgroundImage.src})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    transition: 'all 0.3s ease-in-out',
+    boxShadow: isHovered ? '0 0 20px 5px rgba(192, 192, 192, 0.7)' : 'none',
+    transform: isHovered ? 'scale(1.02)' : 'scale(1)',
   };
 
   const dropzoneTextStyle = {
     marginBottom: '0.5rem',
     fontSize: '0.875rem',
-    color: '#4b5563'
+    color: 'white',
+    textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+    transition: 'all 0.3s ease-in-out',
+    opacity: isHovered ? '1' : '0.9',
   };
 
   const errorStyle = {
@@ -81,12 +88,16 @@ export default function ImageUpload({ onUpload, titillium }) {
       <div
         style={dropzoneStyle}
         onClick={() => fileInputRef.current.click()}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
+      <div className='border p-3 rounded-2xl bg-black/60 flex flex-col justify-center items-center hover:bg-black/60 hover:cursor-pointer hover:scale-105'>
         <p style={dropzoneTextStyle}>
-          <span style={{ fontWeight: 'bold' }} className={titillium.className}>Click to upload</span> or drag and drop
+          <span style={{ fontWeight: 'bold' }} className={titillium.className}>CLICK to UPLOAD</span> 
         </p>
         <p style={dropzoneTextStyle} className={titillium.className}>Only JPEG or PNG, up to 10MB</p>
         <p style={dropzoneTextStyle} className={titillium.className}>Filenames should not contain spaces</p>
+        </div>
       </div>
       <input
         type="file"

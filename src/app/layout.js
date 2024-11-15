@@ -6,13 +6,16 @@ import { NextAuthProvider } from './providers';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Ecom Outfit',
+  title: 'KNBL FSHN',
   description: 'Your AI Fashion Assistant',
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className={inter.className}>
         <NextAuthProvider>
           {children}

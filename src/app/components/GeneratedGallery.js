@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import {galleryStyle, flexContainerStyle, imageContainerStyle, frameStyle, imageStyle, inputContainerStyle, inputStyle, modalStyle, modalImageStyle, iconButtonStyle} from '../utils/styles';
@@ -7,6 +7,39 @@ import ShinyButton from '@/components/ui/shiny-button';
 
 export default function GeneratedGallery({ collections, onUpdateDescription, onUpdateCollectionName, onDeleteCollection, onDownloadCollection, titillium }) {
   const [modalImage, setModalImage] = useState(null);
+  const [loadedImages, setLoadedImages] = useState({});
+  const imageRefs = useRef({});
+
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '50px',
+      threshold: 0.1
+    };
+
+    const handleIntersection = (entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const imageId = entry.target.dataset.imageId;
+          setLoadedImages(prev => ({ ...prev, [imageId]: true }));
+          observer.unobserve(entry.target);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(handleIntersection, observerOptions);
+
+    // Observe all image containers
+    Object.values(imageRefs.current).forEach(ref => {
+      if (ref) {
+        observer.observe(ref);
+      }
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [collections]);
 
   const openModal = (imageUrl) => {
     setModalImage(imageUrl);
@@ -92,34 +125,54 @@ export default function GeneratedGallery({ collections, onUpdateDescription, onU
                 <span className="text-sm text-gray-500">{formatDate(collection.date)}</span>
               </div>
               <div style={flexContainerStyle}>
-                {collection.images.map((image, imageIndex) => (
-                  <div key={`${image.imageUrl}-${imageIndex}`} style={imageContainerStyle}>
-                    <div style={frameStyle}>
-                      <img
-                        src={image.imageUrl}
-                        alt={`Generated image ${imageIndex + 1}`}
-                        style={imageStyle}
-                        onClick={() => openModal(image.imageUrl)}
-                      />
-                      <button
-                        style={iconButtonStyle}
-                        onClick={() => downloadImage(image.imageUrl, `generated_image_${originalIndex}_${imageIndex}.png`)}
-                        title="Download image"
-                      >
-                        <FontAwesomeIcon icon={faDownload} />
-                      </button>
-                      <div style={inputContainerStyle}>
-                        <textarea
-                          className={`${titillium.className} mb-3`}
-                          placeholder="Description"
-                          value={image.description || ''}
-                          onChange={(e) => onUpdateDescription && onUpdateDescription(originalIndex, imageIndex, e.target.value)}
-                          style={inputStyle}
-                        />
+                {collection.images.map((image, imageIndex) => {
+                  const imageId = `${collection._id}-${imageIndex}`;
+                  return (
+                    <div 
+                      key={`${image.imageUrl}-${imageIndex}`} 
+                      style={imageContainerStyle}
+                      ref={el => imageRefs.current[imageId] = el}
+                      data-image-id={imageId}
+                    >
+                      <div style={frameStyle}>
+                        {loadedImages[imageId] ? (
+                          <img
+                            src={image.imageUrl}
+                            alt={`Generated image ${imageIndex + 1}`}
+                            style={imageStyle}
+                            onClick={() => openModal(image.imageUrl)}
+                          />
+                        ) : (
+                          <div style={{
+                            ...imageStyle,
+                            background: '#f0f0f0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            Loading...
+                          </div>
+                        )}
+                        <button
+                          style={iconButtonStyle}
+                          onClick={() => downloadImage(image.imageUrl, `generated_image_${originalIndex}_${imageIndex}.png`)}
+                          title="Download image"
+                        >
+                          <FontAwesomeIcon icon={faDownload} />
+                        </button>
+                        <div style={inputContainerStyle}>
+                          <textarea
+                            className={`${titillium.className} mb-3`}
+                            placeholder="Description"
+                            value={image.description || ''}
+                            onChange={(e) => onUpdateDescription && onUpdateDescription(originalIndex, imageIndex, e.target.value)}
+                            style={inputStyle}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );

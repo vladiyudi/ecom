@@ -56,6 +56,34 @@ export default function UploadedGallery({ images, onUpdateDescription, onDeleteI
     }
   };
 
+  const handleDeleteBottomImage = async (index) => {
+    if (isDeleting) return;
+    
+    try {
+      setIsDeleting(true);
+      const response = await fetch('/api/deleteBottom', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ itemId: images[index]._id }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete bottom image');
+      }
+
+      if (onRefreshImages) {
+        await onRefreshImages();
+      }
+    } catch (error) {
+      console.error('Error deleting bottom image:', error);
+      alert('Failed to delete bottom image. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const handleBottomImageUpload = async (event, itemId) => {
     const files = event.target.files;
     if (!files || !itemId) return;
@@ -127,8 +155,6 @@ export default function UploadedGallery({ images, onUpdateDescription, onDeleteI
       {images && images.length > 0 && (
         <div className='flex justify-end'>
         <ShinyButton
-          // style={deleteAllButtonStyle}
-  
           onClick={handleDeleteAll}
           disabled={isDeleting}
           className={`${titillium.className} border`}
@@ -169,12 +195,27 @@ export default function UploadedGallery({ images, onUpdateDescription, onDeleteI
                   
                   {image.bottom && (
                     <>
-                      <img 
-                        src={image.bottom.url} 
-                        alt="Bottom garment" 
-                        style={imageStyle}
-                        onClick={() => openModal(image.bottom.url)}
-                      />
+                      <div style={{ position: 'relative' }}>
+                        <img 
+                          src={image.bottom.url} 
+                          alt="Bottom garment" 
+                          style={imageStyle}
+                          onClick={() => openModal(image.bottom.url)}
+                        />
+                        <button
+                          style={{
+                            ...iconButtonStyle,
+                            position: 'absolute',
+                            top: '5px',
+                            right: '5px',
+                          }}
+                          onClick={() => handleDeleteBottomImage(index)}
+                          title="Delete bottom image"
+                          disabled={isDeleting}
+                        >
+                          <FontAwesomeIcon icon={faTimes} />
+                        </button>
+                      </div>
                       <textarea
                         className={titillium.className}
                         placeholder="Description of pants"
